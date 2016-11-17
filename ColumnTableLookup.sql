@@ -1,11 +1,12 @@
 --USE CSI_Admin
 --USE CSI_GULF_COUNTY
---USE CSI_Client_COS_578
-USE CSI_Client_COS_613
+USE CSI_Client_COS_578
+--USE CSI_Client_COS_613
 --USE CSI_Client_COS_642
 
 DECLARE
-	@TableSearch BIT
+	@ProcSearch BIT
+	,@TableSearch BIT
 	,@SearchCrit NVARCHAR(MAX)
 	,@ConcatSearch NVARCHAR(MAX)
 	,@TableColumnSearch BIT
@@ -15,15 +16,17 @@ DECLARE
 ---- DO NOT ALTER ANYTHING ABOVE THIS LINE
 
 --Combinational meanings:
---10/11: Table Name (approx.)
---00: Table Name (exact)
---01: ColumnName (exact)
+--100/101/110/111: Procedure Name (approx.)
+--010/011: Table Name (approx.)
+--000: Table Name (exact)
+--001: ColumnName (exact)
 
-
+SET
+	@ProcSearch = 0
 SET
 	@TableSearch = 0
 SET
-	@SearchCrit = 'paymenttypemerchantidentifier'
+	@SearchCrit = 'paymenttypeterminalidentifier'
 SET
 	@TableColumnSearch = 0
 	
@@ -34,11 +37,23 @@ SET
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
-
 SET
 	@ConcatSearch = CONCAT('%',@SearchCrit,'%')
 
-IF @TableSearch = 1
+IF @ProcSearch = 1
+	SELECT 
+		S.[SCHEMA_NAME]
+		,P.[name]
+	FROM SYS.procedures AS P
+		JOIN INFORMATION_SCHEMA.SCHEMATA AS S
+			ON P.[schema_id] = SCHEMA_ID(S.[SCHEMA_NAME])
+	WHERE
+		[name] LIKE @ConcatSearch
+	ORDER BY
+	S.[SCHEMA_NAME]
+	,P.[name]
+
+ELSE IF @TableSearch = 1
 	SELECT
 		TABLE_SCHEMA
 		,TABLE_NAME
