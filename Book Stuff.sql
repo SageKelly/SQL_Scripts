@@ -1,4 +1,4 @@
-USE MVCLibrary
+USE WFSVPN
 GO
 
 ALTER PROCEDURE lib.InsertBook
@@ -13,7 +13,7 @@ BEGIN
 				*
 			FROM lib.Books
 			WHERE
-				AuthorName = @Author
+				Author = @Author
 				AND Title = @Title
 		)
 
@@ -44,7 +44,7 @@ AS
 BEGIN
 	UPDATE lib.Books
 		SET
-			AuthorName = @Author
+			Author = @Author
 			,Title = @Title
 		WHERE
 			BookID = @ID
@@ -69,15 +69,15 @@ FROM lib.Books;
 WITH TEMP AS
 (
 	SELECT
-		AuthorName AS Title
+		Author AS Title
 		,Title AS Author
 	FROM lib.Books
 )
 
 UPDATE lib.Books
 	SET
-		AuthorName = Title
-		,Title = AuthorName
+		Author = Title
+		,Title = Author
 	FROM lib.Books
 	WHERE
 		BookID = BookID
@@ -94,3 +94,18 @@ VALUES
 	,'Hack Lalane'
 	,'I''l Jack You Up'
 )
+WITH DIST_AUTHS AS
+(
+	SELECT DISTINCT
+		Author
+	FROM lib.Books
+)
+DELETE
+FROM lib.Books
+WHERE Author IN
+(
+	SELECT DISTINCT
+		Author
+	FROM lib.Books
+)
+	
